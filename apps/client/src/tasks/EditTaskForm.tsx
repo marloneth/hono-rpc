@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
-import { useUpdateTask } from "./queries/tasks";
-import type { TaskStatus } from "./api/tasks";
+import { useUpdateTask } from "./queries";
+import type { TaskStatus } from "./api";
 import { StatusSelect } from "./components/StatusSelect";
 
 export function EditTaskForm({

@@ -1,5 +1,5 @@
 import type { InferRequestType, InferResponseType } from "hono/client";
-import { client } from "./api";
+import { client } from "../shared/api";
 
 type GetTasksResponse = InferResponseType<typeof client.tasks.$get>;
 type GetTasksRequest = InferRequestType<typeof client.tasks.$get>;

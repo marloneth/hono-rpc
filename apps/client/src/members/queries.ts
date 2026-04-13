@@ -5,7 +5,7 @@ import {
   getMembers,
   updateMember,
   type GetMembersRequestQuery,
-} from "../api/members";
+} from "./api";
 
 type UpdateMemberData = {
   id: string;

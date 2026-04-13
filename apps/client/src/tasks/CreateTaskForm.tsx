@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { useCreateTask } from "./queries/tasks";
+import { useCreateTask } from "./queries";
 
 export function CreateTaskForm() {
   const mutation = useCreateTask();

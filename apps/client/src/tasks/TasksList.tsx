@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { useGetTaskList, useDeleteTask, useUpdateTask } from "./queries/tasks";
+import { useGetTaskList, useDeleteTask, useUpdateTask } from "./queries";
 import { CreateTaskForm } from "./CreateTaskForm";
 import { EditTaskForm } from "./EditTaskForm";
-import type { TaskStatus } from "./api/tasks";
+import type { TaskStatus } from "./api";
 import { StatusSelect } from "./components/StatusSelect";
 import { StatusBadge } from "./components/StatusBadge";
-import { DueDate } from "./components/DueDate";
+import { DueDate } from "../shared/components/DueDate";
 
 type SortBy = "dueDate" | "title" | "status";
 type SortingOrder = "asc" | "desc";

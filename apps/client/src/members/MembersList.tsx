@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { useDebounce } from "./hooks/useDebounce";
-import { useGetMemberList, useDeleteMember } from "./queries/members";
+import { useDebounce } from "../shared/hooks/useDebounce";
+import { useGetMemberList, useDeleteMember } from "./queries";
 import { CreateMemberForm } from "./CreateMemberForm";
 import { EditMemberForm } from "./EditMemberForm";
 import { RoleSelect } from "./components/RoleSelect";
 import { MemberAvatar } from "./components/MemberAvatar";
 import { RoleBadge } from "./components/RoleBadge";
-import type { MemberRole } from "./api/members";
+import type { MemberRole } from "./api";
 
 export function MembersList() {
   const [roleFilter, setRoleFilter] = useState<MemberRole | undefined>(undefined);

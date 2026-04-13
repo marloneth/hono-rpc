@@ -1,28 +1,23 @@
 import { useForm } from "@tanstack/react-form";
-import { useUpdateMember } from "./queries/members";
-import type { Member } from "./api/members";
+import { useCreateMember } from "./queries";
+import type { MemberRole } from "./api";
 import { RoleSelect } from "./components/RoleSelect";
 
-export function EditMemberForm({
-  member,
-  onDone,
-}: {
-  member: Member;
-  onDone: () => void;
-}) {
-  const mutation = useUpdateMember();
+export function CreateMemberForm() {
+  const mutation = useCreateMember();
 
   const form = useForm({
     defaultValues: {
-      firstName: member.firstName,
-      lastName: member.lastName,
-      userName: member.userName,
-      email: member.email,
-      role: member.role,
+      firstName: "",
+      lastName: "",
+      userName: "",
+      email: "",
+      password: "",
+      role: "developer" as MemberRole,
     },
     onSubmit: async ({ value }) => {
-      await mutation.mutateAsync({ id: member.id, data: value });
-      onDone();
+      await mutation.mutateAsync(value);
+      form.reset();
     },
   });
 
@@ -32,7 +27,7 @@ export function EditMemberForm({
         e.preventDefault();
         form.handleSubmit();
       }}
-      className="flex flex-col gap-2"
+      className="flex flex-col gap-2 mb-4"
     >
       <div className="flex gap-2">
         <form.Field name="firstName">
@@ -83,24 +78,37 @@ export function EditMemberForm({
         </form.Field>
       </div>
 
-      <form.Field name="role">
-        {(field) => (
-          <RoleSelect
-            value={field.state.value}
-            onChange={(val) => field.handleChange(val!)}
-            className="border rounded px-2 py-1"
-          />
-        )}
-      </form.Field>
-
       <div className="flex gap-2">
-        <button type="submit" className="bg-green-500 text-white px-2 rounded">
-          Save
-        </button>
-        <button type="button" onClick={onDone} className="px-2">
-          Cancel
-        </button>
+        <form.Field name="password">
+          {(field) => (
+            <input
+              type="password"
+              value={field.state.value}
+              onChange={(e) => field.handleChange(e.target.value)}
+              placeholder="Password"
+              className="border rounded px-2 py-1 flex-1"
+            />
+          )}
+        </form.Field>
+
+        <form.Field name="role">
+          {(field) => (
+            <RoleSelect
+              value={field.state.value}
+              onChange={(val) => field.handleChange(val!)}
+              className="border rounded px-2 py-1"
+            />
+          )}
+        </form.Field>
       </div>
+
+      <button
+        type="submit"
+        disabled={mutation.isPending}
+        className="bg-blue-500 text-white px-3 py-1 rounded"
+      >
+        Add Member
+      </button>
     </form>
   );
 }

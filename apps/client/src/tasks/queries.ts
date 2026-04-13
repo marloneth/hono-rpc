@@ -5,7 +5,7 @@ import {
   getTasks,
   updateTask,
   type GetTasksRequestQuery,
-} from "../api/tasks";
+} from "./api";
 
 type UpdateTaskData = {
   id: string;
