@@ -3,6 +3,8 @@ import { client } from "./api";
 
 type GetTasksResponse = InferResponseType<typeof client.tasks.$get>;
 type GetTasksRequest = InferRequestType<typeof client.tasks.$get>;
+type GetTasksRequestQuery = GetTasksRequest["query"];
+export type TaskStatus = Exclude<GetTasksRequestQuery["status"], undefined>;
 
 type CreateTaskErrorResponse = InferResponseType<
   typeof client.tasks.$post,
@@ -17,19 +19,9 @@ type ApiError = { error: string };
 
 export type Task = GetTasksResponse[number];
 
-export type TasksFilters = {
-  completed?: boolean;
-  from?: string;
-  to?: string;
-  sort?: "dueDate" | "title" | "completed";
-  order?: "asc" | "desc";
-};
-
-const mapToQuery = (filters: TasksFilters): GetTasksRequest["query"] => {
+const mapToQuery = (filters: GetTasksRequestQuery): GetTasksRequestQuery => {
   return {
-    ...(filters.completed !== undefined && {
-      completed: String(filters.completed) as "true" | "false",
-    }),
+    ...(filters.status && { status: filters.status }),
     ...(filters.from && { from: filters.from }),
     ...(filters.to && { to: filters.to }),
     ...(filters.sort && { sort: filters.sort }),
@@ -38,7 +30,7 @@ const mapToQuery = (filters: TasksFilters): GetTasksRequest["query"] => {
 };
 
 export const getTasks = async (
-  filters?: TasksFilters,
+  filters?: GetTasksRequestQuery,
 ): Promise<GetTasksResponse> => {
   const query = filters ? mapToQuery(filters) : {};
   const res = await client.tasks.$get({ query });
@@ -56,7 +48,11 @@ export const createTask = async (data: {
 
 export const updateTask = async (
   id: string,
-  data: { title?: string; completed?: boolean; dueDate?: string },
+  data: {
+    title?: string;
+    status?: TaskStatus;
+    dueDate?: string;
+  },
 ): Promise<UpdateTaskSuccessResponse> => {
   const res = await client.tasks[":id"].$patch({ param: { id }, json: data });
   if (!res.ok) {

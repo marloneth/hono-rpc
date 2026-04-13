@@ -1,5 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { useUpdateTask } from "./queries/tasks";
+import type { TaskStatus } from "./api/tasks";
+import { StatusSelect } from "./components/StatusSelect";
 
 export function EditTaskForm({
   task,
@@ -9,6 +11,7 @@ export function EditTaskForm({
     id: string;
     title: string;
     dueDate?: string;
+    status: TaskStatus;
   };
   onDone: () => void;
 }) {
@@ -17,6 +20,7 @@ export function EditTaskForm({
   const form = useForm({
     defaultValues: {
       title: task.title,
+      status: task.status,
       dueDate: task.dueDate ? task.dueDate.split("T")[0] : "",
     },
     onSubmit: async ({ value }) => {
@@ -24,6 +28,7 @@ export function EditTaskForm({
         id: task.id,
         data: {
           title: value.title,
+          status: value.status,
           dueDate: value.dueDate
             ? new Date(value.dueDate).toISOString()
             : undefined,
@@ -46,6 +51,16 @@ export function EditTaskForm({
           <input
             value={field.state.value}
             onChange={(e) => field.handleChange(e.target.value)}
+            className="border rounded px-2 py-1"
+          />
+        )}
+      </form.Field>
+
+      <form.Field name="status">
+        {(field) => (
+          <StatusSelect
+            value={field.state.value}
+            onChange={(val) => field.handleChange(val!)}
             className="border rounded px-2 py-1"
           />
         )}

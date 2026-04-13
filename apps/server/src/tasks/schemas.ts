@@ -1,5 +1,18 @@
 import z from "zod";
 
+export const taskStatuses = [
+  "backlog",
+  "ready_for_development",
+  "in_progress",
+  "code_review",
+  "testing",
+  "ready_for_release",
+  "done",
+  "blocked",
+] as const;
+
+export type TaskStatus = (typeof taskStatuses)[number];
+
 export const DueDateSchema = z.iso
   .datetime()
   .refine((date) => new Date(date) > new Date(), {
@@ -9,25 +22,29 @@ export const DueDateSchema = z.iso
 export const TaskSchema = z.object({
   id: z.string(),
   title: z.string(),
-  completed: z.boolean(),
+  status: z.enum(taskStatuses),
   dueDate: DueDateSchema.optional(),
+  creatorId: z.string(),
+  ownerId: z.string().nullable(),
 });
 
 export const CreateTaskSchema = z.object({
   title: z.string().min(1),
   dueDate: DueDateSchema.optional(),
+  ownerId: z.string().optional(),
 });
 
 export const UpdateTaskSchema = z.object({
   title: z.string().optional(),
-  completed: z.boolean().optional(),
+  status: z.enum(taskStatuses).optional(),
   dueDate: DueDateSchema.optional(),
+  ownerId: z.string().optional(),
 });
 
-export const QuerySchema = z.object({
-  completed: z.enum(["true", "false"]).optional(),
+export const QueryTasksSchema = z.object({
+  status: z.enum(taskStatuses).optional(),
   from: z.iso.datetime().optional(),
   to: z.iso.datetime().optional(),
-  sort: z.enum(["dueDate", "title", "completed"]).optional(),
+  sort: z.enum(["dueDate", "title", "status"]).optional(),
   order: z.enum(["asc", "desc"]).default("asc"),
 });

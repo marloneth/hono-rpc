@@ -1,7 +1,8 @@
 import { taskDaos, TaskSortField } from "./daos";
+import { TaskStatus } from "./schemas";
 
 interface GetTaskListParams {
-  completed?: boolean;
+  status?: TaskStatus;
   from?: Date;
   to?: Date;
   sortBy?: TaskSortField;
@@ -16,13 +17,23 @@ function getOverdueTasks() {
   return taskDaos.getOverdueTasks();
 }
 
-function createTask(data: { title: string; dueDate?: Date }) {
+function createTask(data: {
+  title: string;
+  creatorId: string;
+  dueDate?: Date;
+  ownerId?: string;
+}) {
   return taskDaos.createTask(data);
 }
 
 function updateTask(
   id: string,
-  data: { title?: string; completed?: boolean; dueDate?: Date },
+  data: {
+    title?: string;
+    status?: TaskStatus;
+    dueDate?: Date;
+    ownerId?: string;
+  },
 ) {
   return taskDaos.updateTask(id, data);
 }

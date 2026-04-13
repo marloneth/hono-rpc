@@ -1,11 +1,12 @@
 import { and, asc, desc, eq, gte, isNull, lt, lte } from "drizzle-orm";
 import { db } from "../db";
 import { tasksTable } from "../db/schema";
+import { TaskStatus } from "./schemas";
 
-export type TaskSortField = "title" | "completed" | "dueDate";
+export type TaskSortField = "title" | "status" | "dueDate";
 
 interface TaskFilters {
-  completed?: boolean;
+  status?: TaskStatus;
   from?: Date;
   to?: Date;
 }
@@ -18,8 +19,8 @@ interface TaskSorting {
 async function getTaskList(filters: TaskFilters = {}, sorting: TaskSorting) {
   const conditions = [isNull(tasksTable.deletedAt)];
 
-  if (filters.completed !== undefined) {
-    conditions.push(eq(tasksTable.completed, filters.completed));
+  if (filters.status) {
+    conditions.push(eq(tasksTable.status, filters.status));
   }
   if (filters.from) {
     conditions.push(gte(tasksTable.dueDate, filters.from));
@@ -50,14 +51,24 @@ async function getOverdueTasks() {
     );
 }
 
-async function createTask(data: { title: string; dueDate?: Date }) {
+async function createTask(data: {
+  title: string;
+  creatorId: string;
+  dueDate?: Date;
+  ownerId?: string;
+}) {
   const [task] = await db.insert(tasksTable).values(data).returning();
   return task;
 }
 
 async function updateTask(
   id: string,
-  data: { title?: string; completed?: boolean; dueDate?: Date },
+  data: {
+    title?: string;
+    status?: TaskStatus;
+    dueDate?: Date;
+    ownerId?: string;
+  },
 ) {
   const [task] = await db
     .update(tasksTable)

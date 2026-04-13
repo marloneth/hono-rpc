@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useGetTaskList, useDeleteTask, useUpdateTask } from "./queries/tasks";
 import { CreateTaskForm } from "./CreateTaskForm";
 import { EditTaskForm } from "./EditTaskForm";
+import type { TaskStatus } from "./api/tasks";
+import { StatusSelect } from "./components/StatusSelect";
 
-type SortBy = "dueDate" | "title" | "completed";
+type SortBy = "dueDate" | "title" | "status";
 type SortingOrder = "asc" | "desc";
 
 export default function App() {
-  const [completed, setCompleted] = useState<boolean | undefined>(undefined);
+  const [status, setStatus] = useState<TaskStatus | undefined>(undefined);
   const [sort, setSort] = useState<SortBy>("dueDate");
   const [order, setOrder] = useState<SortingOrder>("asc");
   const [from, setFrom] = useState<string>();
@@ -15,12 +17,13 @@ export default function App() {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const { data: tasks = [], isLoading } = useGetTaskList({
-    completed,
+    status,
     sort,
     order,
     from,
     to,
   });
+
   const deleteMutation = useDeleteTask();
   const toggleMutation = useUpdateTask();
 
@@ -36,19 +39,12 @@ export default function App() {
           <CreateTaskForm />
 
           <div className="flex gap-2">
-            <select
-              value={completed === undefined ? "" : String(completed)}
-              onChange={(e) =>
-                setCompleted(
-                  e.target.value === "" ? undefined : e.target.value === "true",
-                )
-              }
+            <StatusSelect
+              value={status}
+              onChange={setStatus}
+              includeAll
               className="border rounded-lg px-2 py-1"
-            >
-              <option value="">All</option>
-              <option value="true">Completed</option>
-              <option value="false">Incomplete</option>
-            </select>
+            />
 
             <input
               type="date"
@@ -87,7 +83,7 @@ export default function App() {
             >
               <option value="dueDate">Due Date</option>
               <option value="title">Title</option>
-              <option value="completed">Completed</option>
+              <option value="status">Status</option>
             </select>
 
             <select
@@ -110,12 +106,12 @@ export default function App() {
               ) : (
                 <>
                   <div>
-                    {t.completed ? "✅" : "❌"} - {t.title} -{" "}
+                    {t.status} - {t.title} -{" "}
                     {t.dueDate?.split("T")[0] || "No due date"}
                   </div>
 
                   <div className="flex gap-4 mt-4">
-                    <button
+                    {/* <button
                       onClick={() =>
                         toggleMutation.mutate({
                           id: t.id,
@@ -125,7 +121,7 @@ export default function App() {
                       className="rounded-lg p-2 border-2 border-yellow-400 text-yellow-400 font-semibold"
                     >
                       Toggle
-                    </button>
+                    </button> */}
                     <button
                       onClick={() => setEditingId(t.id)}
                       className="rounded-lg p-2 border-2 border-blue-400 text-blue-400 font-semibold"
