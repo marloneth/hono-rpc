@@ -4,7 +4,7 @@ import {
   deleteTask,
   getTasks,
   updateTask,
-  type TasksFilters,
+  type GetTasksRequestQuery,
 } from "../api/tasks";
 
 type UpdateTaskData = {
@@ -12,7 +12,7 @@ type UpdateTaskData = {
   data: Parameters<typeof updateTask>[1];
 };
 
-export const useGetTaskList = (filters?: TasksFilters) =>
+export const useGetTaskList = (filters?: GetTasksRequestQuery) =>
   useQuery({
     queryKey: ["tasks", filters],
     queryFn: () => getTasks(filters),

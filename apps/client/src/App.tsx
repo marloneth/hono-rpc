@@ -4,6 +4,8 @@ import { CreateTaskForm } from "./CreateTaskForm";
 import { EditTaskForm } from "./EditTaskForm";
 import type { TaskStatus } from "./api/tasks";
 import { StatusSelect } from "./components/StatusSelect";
+import { StatusBadge } from "./components/StatusBadge";
+import { DueDate } from "./components/DueDate";
 
 type SortBy = "dueDate" | "title" | "status";
 type SortingOrder = "asc" | "desc";
@@ -106,22 +108,20 @@ export default function App() {
               ) : (
                 <>
                   <div>
-                    {t.status} - {t.title} -{" "}
-                    {t.dueDate?.split("T")[0] || "No due date"}
+                    <div className="flex items-center gap-2">
+                      <StatusBadge status={t.status} />
+                      <span>{t.title}</span>
+                      {t.dueDate ? (
+                        <DueDate date={t.dueDate} />
+                      ) : (
+                        <span className="text-sm text-gray-400">
+                          No due date
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <div className="flex gap-4 mt-4">
-                    {/* <button
-                      onClick={() =>
-                        toggleMutation.mutate({
-                          id: t.id,
-                          data: { completed: !t.completed },
-                        })
-                      }
-                      className="rounded-lg p-2 border-2 border-yellow-400 text-yellow-400 font-semibold"
-                    >
-                      Toggle
-                    </button> */}
                     <button
                       onClick={() => setEditingId(t.id)}
                       className="rounded-lg p-2 border-2 border-blue-400 text-blue-400 font-semibold"

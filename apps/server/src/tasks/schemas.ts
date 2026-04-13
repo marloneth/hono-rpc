@@ -1,15 +1,5 @@
 import z from "zod";
-
-export const taskStatuses = [
-  "backlog",
-  "ready_for_development",
-  "in_progress",
-  "code_review",
-  "testing",
-  "ready_for_release",
-  "done",
-  "blocked",
-] as const;
+import { taskStatuses } from "../db/schema";
 
 export type TaskStatus = (typeof taskStatuses)[number];
 

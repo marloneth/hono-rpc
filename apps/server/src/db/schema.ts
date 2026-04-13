@@ -8,14 +8,14 @@ const defaultColumns = {
   deletedAt: timestamp({ withTimezone: true }),
 };
 
-export const roles = pgEnum("roles", [
+export const memberRoles = [
   "project_manager",
   "tech_lead",
   "qa_engineer",
   "developer",
-]);
+] as const;
 
-export const taskStatuses = pgEnum("task_statuses", [
+export const taskStatuses = [
   "backlog",
   "ready_for_development",
   "in_progress",
@@ -24,12 +24,15 @@ export const taskStatuses = pgEnum("task_statuses", [
   "ready_for_release",
   "done",
   "blocked",
-]);
+] as const;
+
+export const roles = pgEnum("roles", memberRoles);
+export const statuses = pgEnum("task_statuses", taskStatuses);
 
 export const tasksTable = pgTable("tasks", {
   ...defaultColumns,
   title: varchar({ length: 255 }).notNull(),
-  status: taskStatuses("status").notNull().default("backlog"),
+  status: statuses("status").notNull().default("backlog"),
   dueDate: timestamp({ withTimezone: true }),
   creatorId: uuid()
     .notNull()

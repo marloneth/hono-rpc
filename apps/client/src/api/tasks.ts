@@ -3,7 +3,7 @@ import { client } from "./api";
 
 type GetTasksResponse = InferResponseType<typeof client.tasks.$get>;
 type GetTasksRequest = InferRequestType<typeof client.tasks.$get>;
-type GetTasksRequestQuery = GetTasksRequest["query"];
+export type GetTasksRequestQuery = GetTasksRequest["query"];
 export type TaskStatus = Exclude<GetTasksRequestQuery["status"], undefined>;
 
 type CreateTaskErrorResponse = InferResponseType<

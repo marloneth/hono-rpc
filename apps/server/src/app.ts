@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { tasksRouter } from "./tasks/router";
+import { membersRouter } from "./members/router";
 
 export const app = new Hono()
   .use(
@@ -12,6 +13,7 @@ export const app = new Hono()
   .get("/hello", (c) => {
     return c.json({ message: "Hello from server" });
   })
-  .route("/tasks", tasksRouter);
+  .route("/tasks", tasksRouter)
+  .route("/members", membersRouter);
 
 export type AppType = typeof app;
