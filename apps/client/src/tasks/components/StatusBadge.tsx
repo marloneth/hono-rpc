@@ -1,4 +1,4 @@
-import type { TaskStatus } from "../api/tasks";
+import type { TaskStatus } from "../api";
 
 const STATUS_CONFIG: Record<TaskStatus, { label: string; className: string }> = {
   backlog: {

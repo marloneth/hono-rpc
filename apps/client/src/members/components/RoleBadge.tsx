@@ -1,4 +1,4 @@
-import type { MemberRole } from "../api/members";
+import type { MemberRole } from "../api";
 
 const ROLE_CONFIG: Record<MemberRole, { label: string; className: string }> = {
   developer: {

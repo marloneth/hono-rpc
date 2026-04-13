@@ -2,7 +2,12 @@ import { createFactory } from "hono/factory";
 import { zValidator } from "@hono/zod-validator";
 import { taskService } from "./services";
 import { parseDate } from "./utils";
-import { CreateTaskSchema, QueryTasksSchema, UpdateTaskSchema } from "./schemas";
+import {
+  AssignMemberToTaskSchema,
+  CreateTaskSchema,
+  QueryTasksSchema,
+  UpdateTaskSchema,
+} from "./schemas";
 import { UuidParamSchema } from "../shared/schemas";
 
 const factory = createFactory();
@@ -10,10 +15,11 @@ const factory = createFactory();
 export const getTaskListHandler = factory.createHandlers(
   zValidator("query", QueryTasksSchema),
   async (c) => {
-    const { status, from, to, sort, order } = c.req.valid("query");
+    const { status, ownerId, from, to, sort, order } = c.req.valid("query");
 
     const tasks = await taskService.getTaskList({
       status,
+      ownerId: ownerId === "null" ? null : ownerId,
       from: parseDate(from) ?? undefined,
       to: parseDate(to) ?? undefined,
       sortBy: sort,
@@ -64,6 +70,22 @@ export const updateTaskHandler = factory.createHandlers(
   },
 );
 
+export const assignMemberToTaskHandler = factory.createHandlers(
+  zValidator("param", UuidParamSchema),
+  zValidator("json", AssignMemberToTaskSchema),
+  async (c) => {
+    const { id } = c.req.valid("param");
+    const { memberId } = c.req.valid("json");
+
+    const { member, task } = await taskService.assignMemberToTask(id, memberId);
+
+    if (!member) return c.json({ error: "Member not found" }, 404 as const);
+    if (!task) return c.json({ error: "Task not found" }, 404 as const);
+
+    return c.json(task);
+  },
+);
+
 export const deleteTaskHandler = factory.createHandlers(
   zValidator("param", UuidParamSchema),
   async (c) => {
@@ -73,5 +95,21 @@ export const deleteTaskHandler = factory.createHandlers(
     if (!task) return c.json({ error: "Not found" }, 404 as const);
 
     return c.json({ success: true });
+  },
+);
+
+export const removeMemberFromTaskHandler = factory.createHandlers(
+  zValidator("param", UuidParamSchema),
+  async (c) => {
+    const { id } = c.req.valid("param");
+
+    const result = await taskService.removeMemberFromTask(id);
+
+    if (!result.found) return c.json({ error: "Task not found" }, 404 as const);
+    if (!result.hadAssignee) {
+      return c.json({ error: "Task has no assignee" }, 409 as const);
+    }
+
+    return c.json(result.task);
   },
 );

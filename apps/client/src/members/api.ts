@@ -6,12 +6,10 @@ type GetMembersRequest = InferRequestType<typeof client.members.$get>;
 export type GetMembersRequestQuery = GetMembersRequest["query"];
 export type MemberRole = Exclude<GetMembersRequestQuery["role"], undefined>;
 
-type CreateMemberRequestData = InferRequestType<typeof client.members.$post>;
-type CreateMemberErrorResponse = InferResponseType<
-  typeof client.members.$post,
-  201
->;
-type UpdateMemberRequestData = InferRequestType<
+type CreateMemberRequest = InferRequestType<typeof client.members.$post>;
+type CreateMemberResponse = InferResponseType<typeof client.members.$post, 201>;
+
+type UpdateMemberRequest = InferRequestType<
   (typeof client.members)[":id"]["$patch"]
 >;
 type UpdateMemberSuccessResponse = InferResponseType<
@@ -43,8 +41,8 @@ export const getMembers = async (
 };
 
 export const createMember = async (
-  data: CreateMemberRequestData["json"],
-): Promise<CreateMemberErrorResponse> => {
+  data: CreateMemberRequest["json"],
+): Promise<CreateMemberResponse> => {
   const res = await client.members.$post({ json: data });
   if (!res.ok) throw new Error("Failed to create member");
   return res.json();
@@ -52,7 +50,7 @@ export const createMember = async (
 
 export const updateMember = async (
   id: string,
-  data: UpdateMemberRequestData["json"],
+  data: UpdateMemberRequest["json"],
 ): Promise<UpdateMemberSuccessResponse> => {
   const res = await client.members[":id"].$patch({ param: { id }, json: data });
   if (!res.ok) {

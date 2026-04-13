@@ -1,8 +1,10 @@
+import { memberDaos } from "../members/daos";
 import { taskDaos, TaskSortField } from "./daos";
 import { TaskStatus } from "./schemas";
 
 interface GetTaskListParams {
   status?: TaskStatus;
+  ownerId?: string | null;
   from?: Date;
   to?: Date;
   sortBy?: TaskSortField;
@@ -38,8 +40,30 @@ function updateTask(
   return taskDaos.updateTask(id, data);
 }
 
+async function assignMemberToTask(taskId: string, memberId: string) {
+  const [member, task] = await Promise.all([
+    memberDaos.getMemberById(memberId),
+    taskDaos.getTaskById(taskId),
+  ]);
+
+  if (!member || !task) return { member, task: null };
+
+  const updated = await taskDaos.assignMemberToTask(taskId, memberId);
+  return { member, task: updated };
+}
+
 function deleteTask(id: string) {
   return taskDaos.deleteTask(id);
+}
+
+async function removeMemberFromTask(taskId: string) {
+  const task = await taskDaos.getTaskById(taskId);
+
+  if (!task) return { found: false, hadAssignee: false };
+  if (!task.ownerId) return { found: true, hadAssignee: false };
+
+  const updated = await taskDaos.removeMemberFromTask(taskId);
+  return { found: true, hadAssignee: true, task: updated };
 }
 
 export const taskService = {
@@ -47,5 +71,7 @@ export const taskService = {
   getOverdueTasks,
   createTask,
   updateTask,
+  assignMemberToTask,
   deleteTask,
+  removeMemberFromTask,
 };

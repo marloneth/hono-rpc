@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { InferRequestType } from "hono/client";
 import {
   createMember,
   deleteMember,
@@ -6,10 +7,11 @@ import {
   updateMember,
   type GetMembersRequestQuery,
 } from "./api";
+import type { client } from "../shared/api";
 
 type UpdateMemberData = {
   id: string;
-  data: Parameters<typeof updateMember>[1];
+  data: InferRequestType<(typeof client.members)[":id"]["$patch"]>["json"];
 };
 
 export const useGetMemberList = (filters?: GetMembersRequestQuery) =>

@@ -68,6 +68,15 @@ async function getMemberList(
   return query;
 }
 
+async function getMemberById(id: string) {
+  const [member] = await db
+    .select(memberColumns)
+    .from(membersTable)
+    .where(and(isNull(membersTable.deletedAt), eq(membersTable.id, id)));
+
+  return member ?? null;
+}
+
 async function createMember(data: CreateMemberData) {
   const [member] = await db
     .insert(membersTable)
@@ -98,6 +107,7 @@ async function deleteMember(id: string) {
 
 export const memberDaos = {
   getMemberList,
+  getMemberById,
   createMember,
   updateMember,
   deleteMember,

@@ -1,15 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { InferRequestType } from "hono/client";
 import {
+  assignMember,
   createTask,
   deleteTask,
   getTasks,
+  removeMember,
   updateTask,
   type GetTasksRequestQuery,
 } from "./api";
+import type { client } from "../shared/api";
 
 type UpdateTaskData = {
   id: string;
-  data: Parameters<typeof updateTask>[1];
+  data: InferRequestType<(typeof client.tasks)[":id"]["$patch"]>["json"];
 };
 
 export const useGetTaskList = (filters?: GetTasksRequestQuery) =>
@@ -38,6 +42,23 @@ export const useDeleteTask = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteTask,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
+  });
+};
+
+export const useAssignMember = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ taskId, memberId }: { taskId: string; memberId: string }) =>
+      assignMember(taskId, memberId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
+  });
+};
+
+export const useRemoveMember = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: removeMember,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
   });
 };

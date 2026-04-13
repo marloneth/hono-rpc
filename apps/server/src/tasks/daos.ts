@@ -1,4 +1,14 @@
-import { and, asc, desc, eq, gte, isNull, lt, lte } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gte,
+  isNotNull,
+  isNull,
+  lt,
+  lte,
+} from "drizzle-orm";
 import { db } from "../db";
 import { tasksTable } from "../db/schema";
 import { TaskStatus } from "./schemas";
@@ -7,6 +17,7 @@ export type TaskSortField = "title" | "status" | "dueDate";
 
 interface TaskFilters {
   status?: TaskStatus;
+  ownerId?: string | null;
   from?: Date;
   to?: Date;
 }
@@ -21,6 +32,14 @@ async function getTaskList(filters: TaskFilters = {}, sorting: TaskSorting) {
 
   if (filters.status) {
     conditions.push(eq(tasksTable.status, filters.status));
+  }
+  if (filters.ownerId !== undefined) {
+    const ownerIdCondition =
+      filters.ownerId === null
+        ? isNull(tasksTable.ownerId)
+        : eq(tasksTable.ownerId, filters.ownerId);
+
+    conditions.push(ownerIdCondition);
   }
   if (filters.from) {
     conditions.push(gte(tasksTable.dueDate, filters.from));
@@ -40,6 +59,15 @@ async function getTaskList(filters: TaskFilters = {}, sorting: TaskSorting) {
   }
 
   return query;
+}
+
+async function getTaskById(id: string) {
+  const [task] = await db
+    .select()
+    .from(tasksTable)
+    .where(and(isNull(tasksTable.deletedAt), eq(tasksTable.id, id)));
+
+  return task ?? null;
 }
 
 async function getOverdueTasks() {
@@ -78,6 +106,16 @@ async function updateTask(
   return task ?? null;
 }
 
+async function assignMemberToTask(taskId: string, memberId: string) {
+  const [task] = await db
+    .update(tasksTable)
+    .set({ ownerId: memberId })
+    .where(and(isNull(tasksTable.deletedAt), eq(tasksTable.id, taskId)))
+    .returning();
+
+  return task ?? null;
+}
+
 async function deleteTask(id: string) {
   const [task] = await db
     .update(tasksTable)
@@ -87,10 +125,29 @@ async function deleteTask(id: string) {
   return task ?? null;
 }
 
+async function removeMemberFromTask(taskId: string) {
+  const [task] = await db
+    .update(tasksTable)
+    .set({ ownerId: null })
+    .where(
+      and(
+        isNull(tasksTable.deletedAt),
+        isNotNull(tasksTable.ownerId),
+        eq(tasksTable.id, taskId),
+      ),
+    )
+    .returning();
+
+  return task ?? null;
+}
+
 export const taskDaos = {
   getTaskList,
+  getTaskById,
   getOverdueTasks,
   createTask,
   updateTask,
+  assignMemberToTask,
   deleteTask,
+  removeMemberFromTask,
 };

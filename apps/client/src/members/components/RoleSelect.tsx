@@ -1,4 +1,4 @@
-import type { MemberRole } from "../api/members";
+import type { MemberRole } from "../api";
 
 const ROLE_OPTIONS: { value: MemberRole; label: string }[] = [
   { value: "developer", label: "Developer" },

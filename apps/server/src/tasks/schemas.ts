@@ -31,8 +31,13 @@ export const UpdateTaskSchema = z.object({
   ownerId: z.string().optional(),
 });
 
+export const AssignMemberToTaskSchema = z.object({
+  memberId: z.string(),
+});
+
 export const QueryTasksSchema = z.object({
   status: z.enum(taskStatuses).optional(),
+  ownerId: z.string().optional(),
   from: z.iso.datetime().optional(),
   to: z.iso.datetime().optional(),
   sort: z.enum(["dueDate", "title", "status"]).optional(),

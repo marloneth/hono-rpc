@@ -1,4 +1,4 @@
-import type { TaskStatus } from "../api/tasks";
+import type { TaskStatus } from "../api";
 
 const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
   { value: "backlog", label: "Backlog" },
